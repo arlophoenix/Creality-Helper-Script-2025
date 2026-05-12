@@ -15,7 +15,7 @@ function remove_menu_ui_k1c_2025() {
   subtitle '•UTILITIES:'
   menu_option ' 4' 'Remove' 'Entware'
   menu_option ' 5' 'Remove' 'Klipper Gcode Shell Command'
-  menu_option ' 5' 'Remove' 'Go2rtc'
+  menu_option ' 6' 'Remove' 'Go2rtc'
 #  hr
 #  subtitle '•IMPROVEMENTS:'
 #  disabled_menu_option ' 6' 'Remove' 'Klipper Adaptive Meshing & Purging'

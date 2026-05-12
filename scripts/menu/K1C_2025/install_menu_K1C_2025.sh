@@ -103,7 +103,7 @@ function install_menu_k1c_2025() {
           run "install_gcode_shell_command" "install_menu_ui_k1c_2025"
         fi;;
       6)
-        if [ -f "$GO2RCT_FILE" ]; then
+        if [ -f "$GO2RTC_FILE" ]; then
           error_msg "Go2rtc is already installed!"
         else
           run "install_go2rtc" "install_menu_ui_k1c_2025"

@@ -24,7 +24,7 @@ function install_go2rtc(){
       Y|y)
         echo -e "${white}"
         echo -e "Info: Downloading go2rtc..."
-        mkdir -p "$(dirname $GO2RTC_FILE)"
+        mkdir -p "$(dirname "$GO2RTC_FILE")"
         $HS_FILES/fixes/curl -L "$GO2RTC_URL" -o "$GO2RTC_FILE"
         chmod +x "$GO2RTC_FILE"
         echo -e "Info: Copying service file..."
@@ -52,7 +52,7 @@ function install_go2rtc(){
 }
 
 function remove_go2rtc(){
-  moonraker_nginx_message
+  go2rtc_message
   local yn
   while true; do
     remove_msg "Go2rtc" yn
@@ -62,7 +62,7 @@ function remove_go2rtc(){
         echo -e "Info: Stopping Go2rtc service..."
         stop_go2rtc
         echo -e "Info: Removing files..."
-        rm -f $GO2RTC_SERVICE_FILE $GO2RTC_CONFIG_FILE $GO2RTC_SERVICE_FILE
+        rm -f "$GO2RTC_SERVICE_FILE" "$GO2RTC_CONFIG_FILE" "$GO2RTC_FILE"
         ok_msg "Go2rtc has been removed successfully!"
         return;;
       N|n)
