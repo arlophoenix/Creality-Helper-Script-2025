@@ -11,8 +11,8 @@ function tools_menu_ui_k1c_2025() {
   menu_option ' 2' 'Allow updating' 'Klipper configuration files'
   disabled_menu_option ' 3' 'Fix' 'printing Gcode files from folder'
   hr
-  disabled_menu_option ' 4' 'Enable' 'camera settings in Moonraker'
-  disabled_menu_option ' 5' 'Disable' 'camera settings in Moonraker'
+  menu_option ' 4' 'Enable' 'camera settings in Moonraker'
+  menu_option ' 5' 'Disable' 'camera settings in Moonraker'
   hr
   menu_option ' 6' 'Restart' 'Nginx service'
   menu_option ' 7' 'Restart' 'Moonraker service'
@@ -61,19 +61,19 @@ function tools_menu_k1c_2025() {
 #          run "printing_gcode_from_folder" "tools_menu_ui_k1c_2025"
 #        fi;;
       4)
-        disabled_feature;;
-#        if grep -q "^\[webcam Camera\]$" "$MOONRAKER_CFG"; then
-#          error_msg "Camera settings are alredy enabled in Moonraker!"
-#        else
-#          run "enable_camera_settings" "tools_menu_ui_k1c_2025"
-#        fi;;
+        if [ ! -f "$BUILTIN_CAMERA_FILE" ] && [ ! -f "$USB_CAMERA_FILE" ]; then
+          error_msg "Built-in Camera Fix or USB Camera Support is needed, please install one first!"
+        elif grep -q "^\[webcam chassis\]\|^\[webcam usb\]" "$MOONRAKER_CFG"; then
+          error_msg "Camera settings are already enabled in Moonraker!"
+        else
+          run "enable_camera_settings" "tools_menu_ui_k1c_2025"
+        fi;;
       5)
-        disabled_feature;;
-#        if grep -q "^#\[webcam Camera\]" "$MOONRAKER_CFG"; then
-#          error_msg "Camera settings are alredy disabled in Moonraker!"
-#        else
-#          run "disable_camera_settings" "tools_menu_ui_k1c_2025"
-#        fi;;
+        if ! grep -q "^\[webcam chassis\]\|^\[webcam usb\]" "$MOONRAKER_CFG"; then
+          error_msg "Camera settings are already disabled in Moonraker!"
+        else
+          run "disable_camera_settings" "tools_menu_ui_k1c_2025"
+        fi;;
       6)
         if [ ! -d "$NGINX_FOLDER" ]; then
           error_msg "Nginx is not installed!"

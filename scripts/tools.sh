@@ -182,7 +182,14 @@ function enable_camera_settings(){
     case "${yn}" in
       Y|y)
         echo -e "${white}"
-        if grep -q "#\[webcam Camera\]" "$MOONRAKER_CFG" ; then
+        if [ "$model" = "K1C_2025" ]; then
+          if [ -f "$BUILTIN_CAMERA_FILE" ]; then
+            configure_builtin_camera_k1c_2025
+          fi
+          if [ -f "$USB_CAMERA_FILE" ]; then
+            configure_usb_camera_k1c_2025
+          fi
+        elif grep -q "#\[webcam Camera\]" "$MOONRAKER_CFG" ; then
           echo -e "Info: Enabling camera settings in moonraker.conf file..."
           sed -i -e 's/^\s*#[[:space:]]*\[webcam Camera\]/[webcam Camera]/' -e '/^\[webcam Camera\]/,/^\s*$/ s/^\(\s*\)#/\1/' "$MOONRAKER_CFG"
         else
@@ -219,7 +226,15 @@ function disable_camera_settings(){
     case "${yn}" in
       Y|y)
         echo -e "${white}"
-        if grep -q "\[webcam Camera\]" "$MOONRAKER_CFG" ; then
+        if [ "$model" = "K1C_2025" ]; then
+          if grep -q "^\[webcam chassis\]\|^\[webcam usb\]" "$MOONRAKER_CFG"; then
+            echo -e "Info: Disabling camera settings in moonraker.conf file..."
+            sed -i '/^\[webcam chassis\]/,/^$/d' "$MOONRAKER_CFG"
+            sed -i '/^\[webcam usb\]/,/^$/d' "$MOONRAKER_CFG"
+          else
+            echo -e "Info: Camera settings are already disabled in moonraker.conf file..."
+          fi
+        elif grep -q "\[webcam Camera\]" "$MOONRAKER_CFG" ; then
           echo -e "Info: Disabling camera settings in moonraker.conf file..."
           sed -i '/^\[webcam Camera\]/,/^\s*$/ s/^\(\s*\)\([^#]\)/#\1\2/' "$MOONRAKER_CFG"
         else

@@ -18,6 +18,7 @@ function remove_menu_ui_k1c_2025() {
   menu_option ' 6' 'Remove' 'Go2rtc'
   menu_option ' 7' 'Remove' 'USB Camera Support'
   menu_option ' 8' 'Remove' 'Built-in Camera Fix'
+  menu_option ' 9' 'Remove' 'Camera Settings Control'
 #  hr
 #  subtitle '•IMPROVEMENTS:'
 #  disabled_menu_option ' 6' 'Remove' 'Klipper Adaptive Meshing & Purging'
@@ -142,6 +143,12 @@ function remove_menu_k1c_2025() {
           error_msg "Built-in Camera Fix is not installed!"
         else
           run "remove_builtin_camera" "remove_menu_ui_k1c_2025"
+        fi;;
+      9)
+        if [ ! -f "$CAMERA_SETTINGS_FILE" ]; then
+          error_msg "Camera Settings Control is not installed!"
+        else
+          run "remove_camera_settings_control" "remove_menu_ui_k1c_2025"
         fi;;
 
 #      6)

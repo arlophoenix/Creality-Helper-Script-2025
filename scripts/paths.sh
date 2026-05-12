@@ -147,6 +147,7 @@ function set_paths() {
   CAMERA_SETTINGS_FILE="${HS_CONFIG_FOLDER}/camera-settings.cfg"
   CAMERA_SETTINGS_URL="${HS_FILES}/camera-settings/camera-settings.cfg"
   CAMERA_SETTINGS_NEBULA_URL="${HS_FILES}/camera-settings/camera-settings-nebula.cfg"
+  CAMERA_SETTINGS_K1C_2025_URL="${HS_FILES}/camera-settings/camera-settings-k1c-2025.cfg"
   
   # USB Camera Support
   USB_CAMERA_FILE="${INITD_FOLDER}/S50usb_camera"

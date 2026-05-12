@@ -18,6 +18,7 @@ function install_menu_ui_k1c_2025() {
   menu_option ' 6' 'Install' 'Go2rtc'
   menu_option ' 7' 'Install' 'USB Camera Support'
   menu_option ' 8' 'Install' 'Built-in Camera Fix'
+  menu_option ' 9' 'Install' 'Camera Settings Control'
 #  hr
 #  subtitle '•IMPROVEMENTS:'
 #  disabled_menu_option ' 6' 'Install' 'Klipper Adaptive Meshing & Purging'
@@ -131,6 +132,14 @@ function install_menu_k1c_2025() {
           error_msg "Moonraker and Nginx are needed, please install them first!"
         else
           run "install_builtin_camera" "install_menu_ui_k1c_2025"
+        fi;;
+      9)
+        if [ -f "$CAMERA_SETTINGS_FILE" ]; then
+          error_msg "Camera Settings Control is already installed!"
+        elif [ ! -f "$KLIPPER_SHELL_FILE" ]; then
+          error_msg "Klipper Gcode Shell Command is needed, please install it first!"
+        else
+          run "install_camera_settings_control" "install_menu_ui_k1c_2025"
         fi;;
 #      7)
 #        disabled_feature;;
