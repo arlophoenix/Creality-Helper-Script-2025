@@ -15,7 +15,12 @@ function install_menu_ui_k1c_2025() {
   subtitle '•UTILITIES:'
   menu_option ' 4' 'Install' 'Entware'
   menu_option ' 5' 'Install' 'Klipper Gcode Shell Command !!!UNTESTED!!!'
+  hr
+  subtitle '•CAMERA:'
   menu_option ' 6' 'Install' 'Go2rtc'
+  menu_option ' 7' 'Install' 'USB Camera Support'
+  menu_option ' 8' 'Install' 'Built-in Camera Fix'
+  menu_option ' 9' 'Install' 'Camera Settings Control'
 #  hr
 #  subtitle '•IMPROVEMENTS:'
 #  disabled_menu_option ' 6' 'Install' 'Klipper Adaptive Meshing & Purging'
@@ -107,6 +112,36 @@ function install_menu_k1c_2025() {
           error_msg "Go2rtc is already installed!"
         else
           run "install_go2rtc" "install_menu_ui_k1c_2025"
+        fi;;
+      7)
+        if [ -f "$USB_CAMERA_FILE" ]; then
+          error_msg "Camera USB Support is already installed!"
+        elif [ ! -f "$ENTWARE_FILE" ]; then
+          error_msg "Entware is needed, please install it first!"
+        elif [ ! -d "$MOONRAKER_FOLDER" ] || [ ! -d "$NGINX_FOLDER" ]; then
+          error_msg "Moonraker and Nginx are needed, please install them first!"
+        elif ! v4l2-ctl --list-devices | grep -A1 usb | sed 's/^[[:space:]]*//g' | grep '^/dev' | grep -vq '^/dev/video0$'; then
+          error_msg "No third party USB camera found!"
+        else
+          run "install_usb_camera" "install_menu_ui_k1c_2025"
+        fi;;
+      8)
+        if [ -f "$BUILTIN_CAMERA_FILE" ]; then
+          error_msg "Built-in Camera Fix is already installed!"
+        elif [ ! -f "$ENTWARE_FILE" ]; then
+          error_msg "Entware is needed, please install it first!"
+        elif [ ! -d "$MOONRAKER_FOLDER" ] || [ ! -d "$NGINX_FOLDER" ]; then
+          error_msg "Moonraker and Nginx are needed, please install them first!"
+        else
+          run "install_builtin_camera" "install_menu_ui_k1c_2025"
+        fi;;
+      9)
+        if [ -f "$CAMERA_SETTINGS_FILE" ]; then
+          error_msg "Camera Settings Control is already installed!"
+        elif [ ! -f "$KLIPPER_SHELL_FILE" ]; then
+          error_msg "Klipper Gcode Shell Command is needed, please install it first!"
+        else
+          run "install_camera_settings_control" "install_menu_ui_k1c_2025"
         fi;;
 #      7)
 #        disabled_feature;;

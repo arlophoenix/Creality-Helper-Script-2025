@@ -28,7 +28,9 @@ function install_camera_settings_control(){
           mkdir -p "$HS_CONFIG_FOLDER"
         fi
         echo -e "Info: Linking file..."
-        if v4l2-ctl --list-devices | grep -q 'CCX2F3298'; then
+        if [ "$model" = "K1C_2025" ]; then
+          cp "$CAMERA_SETTINGS_K1C_2025_URL" "$HS_CONFIG_FOLDER"/camera-settings.cfg
+        elif v4l2-ctl --list-devices | grep -q 'CCX2F3298'; then
           cp "$CAMERA_SETTINGS_NEBULA_URL" "$HS_CONFIG_FOLDER"/camera-settings.cfg
         else
           cp "$CAMERA_SETTINGS_URL" "$HS_CONFIG_FOLDER"/camera-settings.cfg
@@ -37,7 +39,13 @@ function install_camera_settings_control(){
           echo -e "Info: Camera Settings configurations are already enabled in printer.cfg file..."
         else
           echo -e "Info: Adding Camera Settings configurations in printer.cfg file..."
-          sed -i '/\[include printer_params\.cfg\]/a \[include Helper-Script/camera-settings\.cfg\]' "$PRINTER_CFG"
+          if grep -q "\[include printer_params\.cfg\]" "$PRINTER_CFG"; then
+            sed -i '/\[include printer_params\.cfg\]/a \[include Helper-Script/camera-settings\.cfg\]' "$PRINTER_CFG"
+          elif grep -q "#\*# <---------------------- SAVE_CONFIG ---------------------->" "$PRINTER_CFG"; then
+            sed -i '/#\*# <---------------------- SAVE_CONFIG ---------------------->/i \[include Helper-Script/camera-settings\.cfg\]' "$PRINTER_CFG"
+          else
+            echo "[include Helper-Script/camera-settings.cfg]" >> "$PRINTER_CFG"
+          fi
         fi
         echo -e "Info: Restarting Klipper service..."
         restart_klipper

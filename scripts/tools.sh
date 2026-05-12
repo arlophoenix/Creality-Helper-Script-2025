@@ -90,6 +90,23 @@ function reset_factory_settings_message(){
   bottom_line
 }
 
+# Basename of the active Klipper init script (S55… or CS55… on newer K1C firmware), or empty.
+klipper_init_script_basename() {
+  if [ -f "$INITD_FOLDER/S55klipper_service" ]; then
+    echo S55klipper_service
+  elif [ -f "$INITD_FOLDER/CS55klipper_service" ]; then
+    echo CS55klipper_service
+  fi
+}
+
+klipper_disabled_backup_basename() {
+  if [ -f "$INITD_FOLDER/disabled.S55klipper_service" ]; then
+    echo disabled.S55klipper_service
+  elif [ -f "$INITD_FOLDER/disabled.CS55klipper_service" ]; then
+    echo disabled.CS55klipper_service
+  fi
+}
+
 function prevent_updating_klipper_files(){
   prevent_updating_klipper_files_message
   local yn
@@ -98,12 +115,17 @@ function prevent_updating_klipper_files(){
     case "${yn}" in
       Y|y)
         echo -e "${white}"
+        klipper_init="$(klipper_init_script_basename)"
+        if [ -z "$klipper_init" ]; then
+          error_msg "Klipper init script not found in ${INITD_FOLDER} (expected S55klipper_service or CS55klipper_service)."
+          return
+        fi
         echo -e "Info: Backup file..."
-        mv "$INITD_FOLDER"/S55klipper_service "$INITD_FOLDER"/disabled.S55klipper_service
+        mv "$INITD_FOLDER/$klipper_init" "$INITD_FOLDER/disabled.$klipper_init"
         echo -e "Info: Copying file..."
-        cp "$KLIPPER_SERVICE_URL" "$INITD_FOLDER"/S55klipper_service
+        cp "$KLIPPER_SERVICE_URL" "$INITD_FOLDER/$klipper_init"
         echo -e "Info: Applying permissions..."
-        chmod 755 "$INITD_FOLDER"/S55klipper_service
+        chmod 755 "$INITD_FOLDER/$klipper_init"
         echo -e "Info: Restarting Klipper service..."
         restart_klipper
         ok_msg "Klipper configuration files will no longer be updated when Klipper restarts!"
@@ -125,9 +147,15 @@ function allow_updating_klipper_files(){
     case "${yn}" in
       Y|y)
         echo -e "${white}"
+        disabled_backup="$(klipper_disabled_backup_basename)"
+        if [ -z "$disabled_backup" ]; then
+          error_msg "No disabled Klipper init backup found in ${INITD_FOLDER}."
+          return
+        fi
+        klipper_init="${disabled_backup#disabled.}"
         echo -e "Info: Restoring file..."
-        rm -f "$INITD_FOLDER"/S55klipper_service
-        mv "$INITD_FOLDER"/disabled.S55klipper_service "$INITD_FOLDER"/S55klipper_service
+        rm -f "$INITD_FOLDER/$klipper_init"
+        mv "$INITD_FOLDER/$disabled_backup" "$INITD_FOLDER/$klipper_init"
         echo -e "Info: Restarting Klipper service..."
         restart_klipper
         ok_msg "Klipper configuration files will be updated when Klipper restarts!"
@@ -182,7 +210,14 @@ function enable_camera_settings(){
     case "${yn}" in
       Y|y)
         echo -e "${white}"
-        if grep -q "#\[webcam Camera\]" "$MOONRAKER_CFG" ; then
+        if [ "$model" = "K1C_2025" ]; then
+          if [ -f "$BUILTIN_CAMERA_FILE" ]; then
+            configure_builtin_camera_k1c_2025
+          fi
+          if [ -f "$USB_CAMERA_FILE" ]; then
+            configure_usb_camera_k1c_2025
+          fi
+        elif grep -q "#\[webcam Camera\]" "$MOONRAKER_CFG" ; then
           echo -e "Info: Enabling camera settings in moonraker.conf file..."
           sed -i -e 's/^\s*#[[:space:]]*\[webcam Camera\]/[webcam Camera]/' -e '/^\[webcam Camera\]/,/^\s*$/ s/^\(\s*\)#/\1/' "$MOONRAKER_CFG"
         else
@@ -219,7 +254,15 @@ function disable_camera_settings(){
     case "${yn}" in
       Y|y)
         echo -e "${white}"
-        if grep -q "\[webcam Camera\]" "$MOONRAKER_CFG" ; then
+        if [ "$model" = "K1C_2025" ]; then
+          if grep -q "^\[webcam chassis\]\|^\[webcam usb\]" "$MOONRAKER_CFG"; then
+            echo -e "Info: Disabling camera settings in moonraker.conf file..."
+            sed -i '/^\[webcam chassis\]/,/^$/d' "$MOONRAKER_CFG"
+            sed -i '/^\[webcam usb\]/,/^$/d' "$MOONRAKER_CFG"
+          else
+            echo -e "Info: Camera settings are already disabled in moonraker.conf file..."
+          fi
+        elif grep -q "\[webcam Camera\]" "$MOONRAKER_CFG" ; then
           echo -e "Info: Disabling camera settings in moonraker.conf file..."
           sed -i '/^\[webcam Camera\]/,/^\s*$/ s/^\(\s*\)\([^#]\)/#\1\2/' "$MOONRAKER_CFG"
         else

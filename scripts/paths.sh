@@ -65,7 +65,11 @@ function set_paths() {
   KLIPPER_EXTRAS_FOLDER="/usr/share/klipper/klippy/extras"
   KLIPPER_CONFIG_FOLDER="${PRINTER_DATA_FOLDER}/config"
   KLIPPER_KLIPPY_FOLDER="/usr/share/klipper/klippy"
-  KLIPPER_SERVICE_URL="${HS_FILES}/services/S55klipper_service"
+  if [ "$model" = "K1C_2025" ]; then
+    KLIPPER_SERVICE_URL="${HS_FILES}/services/CS55klipper_service_minimal"
+  else
+    KLIPPER_SERVICE_URL="${HS_FILES}/services/S55klipper_service"
+  fi
   KLIPPER_GCODE_URL="${HS_FILES}/fixes/gcode.py"
   KLIPPER_GCODE_3V3_URL="${HS_FILES}/fixes/gcode_3v3.py"
   
@@ -147,11 +151,15 @@ function set_paths() {
   CAMERA_SETTINGS_FILE="${HS_CONFIG_FOLDER}/camera-settings.cfg"
   CAMERA_SETTINGS_URL="${HS_FILES}/camera-settings/camera-settings.cfg"
   CAMERA_SETTINGS_NEBULA_URL="${HS_FILES}/camera-settings/camera-settings-nebula.cfg"
+  CAMERA_SETTINGS_K1C_2025_URL="${HS_FILES}/camera-settings/camera-settings-k1c-2025.cfg"
   
   # USB Camera Support
   USB_CAMERA_FILE="${INITD_FOLDER}/S50usb_camera"
   USB_CAMERA_SINGLE_URL="${HS_FILES}/services/S50usb_camera-single"
   USB_CAMERA_DUAL_URL="${HS_FILES}/services/S50usb_camera-dual"
+  USB_CAMERA_K1C_2025_URL="${HS_FILES}/services/S50usb_camera-k1c-2025"
+  BUILTIN_CAMERA_FILE="${INITD_FOLDER}/S50builtin_camera"
+  BUILTIN_CAMERA_K1C_2025_URL="${HS_FILES}/services/S50builtin_camera-k1c-2025"
   
   # OctoEverywhere #
   OCTOEVERYWHERE_FOLDER="${USR_DATA}/octoeverywhere"

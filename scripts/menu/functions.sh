@@ -211,19 +211,31 @@ function restart_go2rtc() {
 
 function start_klipper() {
   set +e
-  "$INITD_FOLDER"/S55klipper_service start
+  if [ -f "$INITD_FOLDER"/CS55klipper_service ]; then
+    "$INITD_FOLDER"/CS55klipper_service start
+  else
+    "$INITD_FOLDER"/S55klipper_service start
+  fi
   set -e
 }
 
 function stop_klipper() {
   set +e
-  "$INITD_FOLDER"/S55klipper_service stop
+  if [ -f "$INITD_FOLDER"/CS55klipper_service ]; then
+    "$INITD_FOLDER"/CS55klipper_service stop
+  else
+    "$INITD_FOLDER"/S55klipper_service stop
+  fi
   set -e
 }
 
 function restart_klipper() {
   set +e
-  "$INITD_FOLDER"/S55klipper_service restart
+  if [ -f "$INITD_FOLDER"/CS55klipper_service ]; then
+    "$INITD_FOLDER"/CS55klipper_service restart
+  else
+    "$INITD_FOLDER"/S55klipper_service restart
+  fi
   set -e
 }
 

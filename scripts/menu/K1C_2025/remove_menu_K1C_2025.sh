@@ -15,7 +15,12 @@ function remove_menu_ui_k1c_2025() {
   subtitle '•UTILITIES:'
   menu_option ' 4' 'Remove' 'Entware'
   menu_option ' 5' 'Remove' 'Klipper Gcode Shell Command'
+  hr
+  subtitle '•CAMERA:'
   menu_option ' 6' 'Remove' 'Go2rtc'
+  menu_option ' 7' 'Remove' 'USB Camera Support'
+  menu_option ' 8' 'Remove' 'Built-in Camera Fix'
+  menu_option ' 9' 'Remove' 'Camera Settings Control'
 #  hr
 #  subtitle '•IMPROVEMENTS:'
 #  disabled_menu_option ' 6' 'Remove' 'Klipper Adaptive Meshing & Purging'
@@ -99,6 +104,8 @@ function remove_menu_k1c_2025() {
           error_msg "Entware is needed to use Moonraker Obico, please uninstall it first!"
         elif [ -f "$USB_CAMERA_FILE" ]; then
           error_msg "Entware is needed to use USB Camera Support, please uninstall it first!"
+        elif [ -f "$BUILTIN_CAMERA_FILE" ]; then
+          error_msg "Entware is needed to use Built-in Camera Fix, please uninstall it first!"
         else
           run "remove_entware" "remove_menu_ui_k1c_2025"
         fi;;
@@ -126,6 +133,24 @@ function remove_menu_k1c_2025() {
           error_msg "Go2rtc is not installed!"
         else
           run "remove_go2rtc" "remove_menu_ui_k1c_2025"
+        fi;;
+      7)
+        if [ ! -f "$USB_CAMERA_FILE" ]; then
+          error_msg "USB Camera Support is not installed!"
+        else
+          run "remove_usb_camera" "remove_menu_ui_k1c_2025"
+        fi;;
+      8)
+        if [ ! -f "$BUILTIN_CAMERA_FILE" ]; then
+          error_msg "Built-in Camera Fix is not installed!"
+        else
+          run "remove_builtin_camera" "remove_menu_ui_k1c_2025"
+        fi;;
+      9)
+        if [ ! -f "$CAMERA_SETTINGS_FILE" ]; then
+          error_msg "Camera Settings Control is not installed!"
+        else
+          run "remove_camera_settings_control" "remove_menu_ui_k1c_2025"
         fi;;
 
 #      6)
