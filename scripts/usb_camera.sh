@@ -201,6 +201,7 @@ function install_usb_camera(){
         echo -e "Info: Installing necessary packages..."
         ensure_mjpg_streamer_packages
         "$ENTWARE_FILE" update && "$ENTWARE_FILE" install mjpg-streamer mjpg-streamer-input-http mjpg-streamer-input-uvc mjpg-streamer-output-http mjpg-streamer-www
+        disable_entware_builtin_mjpg_streamer
         echo -e "Info: Starting service..."
         "$USB_CAMERA_FILE" start
         if [ "$model" = "K1C_2025" ]; then
@@ -246,6 +247,7 @@ function install_builtin_camera(){
         echo -e "Info: Installing necessary packages..."
         ensure_mjpg_streamer_packages
         "$ENTWARE_FILE" update && "$ENTWARE_FILE" install mjpg-streamer mjpg-streamer-input-http mjpg-streamer-input-uvc mjpg-streamer-output-http mjpg-streamer-www
+        disable_entware_builtin_mjpg_streamer
         echo -e "Info: Starting service..."
         "$BUILTIN_CAMERA_FILE" start
         configure_builtin_camera_k1c_2025
