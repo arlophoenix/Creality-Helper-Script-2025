@@ -20,6 +20,17 @@ function check_file_k1c_2025() {
   fi
 }
 
+function check_any_file_k1c_2025() {
+  local file_path
+  for file_path in "$@"; do
+    if [ -f "$file_path" ]; then
+      echo -e "${green}вњ“"
+      return
+    fi
+  done
+  echo -e "${red}вњ—"
+}
+
 function check_simplyprint_k1c_2025() {
   if [ ! -f "$MOONRAKER_CFG" ]; then
     echo -e "${red}✗"
@@ -59,8 +70,8 @@ function info_menu_ui_k1c_2025() {
   subtitle '•CAMERA:'
   info_line "$(check_file_k1c_2025 "$TIMELAPSE_FILE")" 'Moonraker Timelapse'
   info_line "$(check_file_k1c_2025 "$CAMERA_SETTINGS_FILE")" 'Camera Settings Control'
-  info_line "$(check_file_k1c_2025 "$USB_CAMERA_FILE")" 'USB Camera Support'
-  info_line "$(check_file_k1c_2025 "$BUILTIN_CAMERA_FILE")" 'Built-in Camera Fix'
+  info_line "$(check_any_file_k1c_2025 "$USB_CAMERA_FILE" "$USB_CAMERA_LEGACY_FILE")" 'USB Camera Support'
+  info_line "$(check_any_file_k1c_2025 "$BUILTIN_CAMERA_FILE" "$BUILTIN_CAMERA_LEGACY_FILE")" 'Built-in Camera Fix'
   hr
   subtitle '•REMOTE ACCESS:'
   info_line "$(check_folder_k1c_2025 "$OCTOEVERYWHERE_FOLDER")" 'OctoEverywhere'

@@ -94,6 +94,57 @@ function ensure_mjpg_streamer_packages(){
   fi
 }
 
+function disable_entware_builtin_mjpg_streamer(){
+  if [ "$model" != "K1C_2025" ]; then
+    return
+  fi
+
+  if [ -f /opt/etc/init.d/S96mjpg-streamer ]; then
+    echo -e "Info: Disabling conflicting Entware mjpg-streamer service..."
+    set +e
+    /opt/etc/init.d/S96mjpg-streamer stop
+    set -e
+    mv /opt/etc/init.d/S96mjpg-streamer /opt/etc/init.d/disabled.S96mjpg-streamer
+  fi
+}
+
+function restore_entware_builtin_mjpg_streamer(){
+  if [ "$model" != "K1C_2025" ]; then
+    return
+  fi
+
+  if [ -f /opt/etc/init.d/disabled.S96mjpg-streamer ]; then
+    echo -e "Info: Restoring Entware mjpg-streamer service..."
+    mv /opt/etc/init.d/disabled.S96mjpg-streamer /opt/etc/init.d/S96mjpg-streamer
+  fi
+}
+
+function disable_quintusp_camera_service(){
+  if [ "$model" != "K1C_2025" ]; then
+    return
+  fi
+
+  if [ -f "$QUINTUSP_SERVICE_FILE" ]; then
+    echo -e "Info: Disabling conflicting Creality quintusp service..."
+    set +e
+    "$QUINTUSP_SERVICE_FILE" stop
+    killall quintusp 2>/dev/null
+    set -e
+    mv "$QUINTUSP_SERVICE_FILE" "$QUINTUSP_DISABLED_FILE"
+  fi
+}
+
+function restore_quintusp_camera_service(){
+  if [ "$model" != "K1C_2025" ]; then
+    return
+  fi
+
+  if [ -f "$QUINTUSP_DISABLED_FILE" ]; then
+    echo -e "Info: Restoring Creality quintusp service..."
+    mv "$QUINTUSP_DISABLED_FILE" "$QUINTUSP_SERVICE_FILE"
+  fi
+}
+
 function install_usb_camera(){
   usb_camera_message
   local yn
@@ -102,13 +153,21 @@ function install_usb_camera(){
     case "${yn}" in
       Y|y)
         echo -e "${white}"
-        echo -e "Info: Copying file..."
         if [ "$model" = "K1C_2025" ]; then
-          cp "$USB_CAMERA_K1C_2025_URL" "$INITD_FOLDER"/S50usb_camera
+          k1c_2025_migrate_entware_boot_if_needed
+          disable_entware_builtin_mjpg_streamer
+        fi
+        echo -e "Info: Copying file..."
+        set +e
+        [ "$USB_CAMERA_FILE" != "$USB_CAMERA_LEGACY_FILE" ] && [ -f "$USB_CAMERA_LEGACY_FILE" ] && "$USB_CAMERA_LEGACY_FILE" stop
+        set -e
+        rm -f "$USB_CAMERA_LEGACY_FILE"
+        if [ "$model" = "K1C_2025" ]; then
+          cp "$USB_CAMERA_K1C_2025_URL" "$USB_CAMERA_FILE"
         elif [ "$model" = "K1" ]; then
-          cp "$USB_CAMERA_DUAL_URL" "$INITD_FOLDER"/S50usb_camera
+          cp "$USB_CAMERA_DUAL_URL" "$USB_CAMERA_FILE"
         else
-          cp "$USB_CAMERA_SINGLE_URL" "$INITD_FOLDER"/S50usb_camera
+          cp "$USB_CAMERA_SINGLE_URL" "$USB_CAMERA_FILE"
           echo
           echo -e " ${darkred}Be careful with the 1080p resolution!"
           echo -e " It takes more resources and timelapses are larger and take longer to convert.${white}"
@@ -122,7 +181,7 @@ function install_usb_camera(){
               480p|480P)
                 echo -e "${white}"
                 echo -e "Info: Applying change..."
-                sed -i 's/1280x720/640x480/g' "$INITD_FOLDER"/S50usb_camera
+                sed -i 's/1280x720/640x480/g' "$USB_CAMERA_FILE"
               break;;
               720p|720P)
                 echo -e "${white}"
@@ -131,19 +190,19 @@ function install_usb_camera(){
               1080p|1080p)
                 echo -e "${white}"
                 echo -e "Info: Applying change..."
-                sed -i 's/1280x720/1920x1080/g' "$INITD_FOLDER"/S50usb_camera
+                sed -i 's/1280x720/1920x1080/g' "$USB_CAMERA_FILE"
               break;;
               *)
                 error_msg "Please select a correct choice!";;
             esac
           done
         fi
-        chmod 755 "$INITD_FOLDER"/S50usb_camera
+        chmod 755 "$USB_CAMERA_FILE"
         echo -e "Info: Installing necessary packages..."
         ensure_mjpg_streamer_packages
         "$ENTWARE_FILE" update && "$ENTWARE_FILE" install mjpg-streamer mjpg-streamer-input-http mjpg-streamer-input-uvc mjpg-streamer-output-http mjpg-streamer-www
         echo -e "Info: Starting service..."
-        "$INITD_FOLDER"/S50usb_camera start
+        "$USB_CAMERA_FILE" start
         if [ "$model" = "K1C_2025" ]; then
           configure_usb_camera_k1c_2025
           if [ -f "$INITD_FOLDER"/S56moonraker_service ]; then
@@ -170,7 +229,14 @@ function install_builtin_camera(){
     case "${yn}" in
       Y|y)
         echo -e "${white}"
+        k1c_2025_migrate_entware_boot_if_needed
+        disable_entware_builtin_mjpg_streamer
+        disable_quintusp_camera_service
         echo -e "Info: Copying file..."
+        set +e
+        [ -f "$BUILTIN_CAMERA_LEGACY_FILE" ] && "$BUILTIN_CAMERA_LEGACY_FILE" stop
+        set -e
+        rm -f "$BUILTIN_CAMERA_LEGACY_FILE"
         cp "$BUILTIN_CAMERA_K1C_2025_URL" "$BUILTIN_CAMERA_FILE"
         chmod 755 "$BUILTIN_CAMERA_FILE"
         echo -e "Info: Installing necessary packages..."
@@ -205,9 +271,13 @@ function remove_builtin_camera(){
         echo -e "Info: Stopping service..."
         set +e
         "$BUILTIN_CAMERA_FILE" stop
+        "$BUILTIN_CAMERA_LEGACY_FILE" stop
         set -e
         echo -e "Info: Removing file..."
         rm -f "$BUILTIN_CAMERA_FILE"
+        rm -f "$BUILTIN_CAMERA_LEGACY_FILE"
+        restore_entware_builtin_mjpg_streamer
+        restore_quintusp_camera_service
         if [ -f "$MOONRAKER_CFG" ]; then
           echo -e "Info: Removing built-in camera configuration in moonraker.conf file..."
           sed -i '/^\[webcam chassis\]/,/^$/d' "$MOONRAKER_CFG"
@@ -218,7 +288,7 @@ function remove_builtin_camera(){
         fi
         echo -e "Info: Removing packages..."
         set +e
-        if [ ! -f "$USB_CAMERA_FILE" ]; then
+        if [ ! -f "$USB_CAMERA_FILE" ] && [ ! -f "$USB_CAMERA_LEGACY_FILE" ]; then
           "$ENTWARE_FILE" --autoremove remove mjpg-streamer-www
           "$ENTWARE_FILE" --autoremove remove mjpg-streamer-output-http
           "$ENTWARE_FILE" --autoremove remove mjpg-streamer-input-uvc
@@ -247,10 +317,12 @@ function remove_usb_camera(){
         echo -e "${white}"
         echo -e "Info: Stopping service..."
         set +e
-        "$INITD_FOLDER"/S50usb_camera stop
+        "$USB_CAMERA_FILE" stop
+        "$USB_CAMERA_LEGACY_FILE" stop
         set -e
         echo -e "Info: Removing file..."
-        rm -f "$INITD_FOLDER"/S50usb_camera
+        rm -f "$USB_CAMERA_FILE"
+        rm -f "$USB_CAMERA_LEGACY_FILE"
         if [ "$model" = "K1C_2025" ] && [ -f "$MOONRAKER_CFG" ]; then
           echo -e "Info: Removing USB Camera configurations in moonraker.conf file..."
           sed -i '/^\[webcam usb\]/,/^$/d' "$MOONRAKER_CFG"
@@ -261,7 +333,7 @@ function remove_usb_camera(){
         fi
         echo -e "Info: Removing packages..."
         set +e
-        if [ "$model" != "K1C_2025" ] || [ ! -f "$BUILTIN_CAMERA_FILE" ]; then
+        if [ "$model" != "K1C_2025" ] || { [ ! -f "$BUILTIN_CAMERA_FILE" ] && [ ! -f "$BUILTIN_CAMERA_LEGACY_FILE" ]; }; then
           "$ENTWARE_FILE" --autoremove remove mjpg-streamer-www
           "$ENTWARE_FILE" --autoremove remove mjpg-streamer-output-http
           "$ENTWARE_FILE" --autoremove remove mjpg-streamer-input-uvc

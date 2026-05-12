@@ -61,7 +61,7 @@ function tools_menu_k1c_2025() {
 #          run "printing_gcode_from_folder" "tools_menu_ui_k1c_2025"
 #        fi;;
       4)
-        if [ ! -f "$BUILTIN_CAMERA_FILE" ] && [ ! -f "$USB_CAMERA_FILE" ]; then
+        if [ ! -f "$BUILTIN_CAMERA_FILE" ] && [ ! -f "$BUILTIN_CAMERA_LEGACY_FILE" ] && [ ! -f "$USB_CAMERA_FILE" ] && [ ! -f "$USB_CAMERA_LEGACY_FILE" ]; then
           error_msg "Built-in Camera Fix or USB Camera Support is needed, please install one first!"
         elif grep -q "^\[webcam chassis\]\|^\[webcam usb\]" "$MOONRAKER_CFG"; then
           error_msg "Camera settings are already enabled in Moonraker!"

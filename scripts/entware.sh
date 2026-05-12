@@ -13,38 +13,54 @@ function entware_message(){
   bottom_line
 }
 
+# Writes S48entware (runs before S50* camera/nginx). Removes legacy S56entware.
+# Old S56 script was broken (indented shebang) and ran after cameras — /opt was empty at camera start.
+function k1c_2025_write_entware_init_script() {
+  echo "Info: Installing Entware boot mount (S48entware, before S50 camera services)..."
+  rm -f "$INITD_FOLDER/S56entware"
+  {
+    echo '#!/bin/sh'
+    echo '# Creality Helper Script — persistent Entware /opt (must run before S50*).'
+    echo "ENTWARE_IMG=\"$ENTWARE_OPT_MOUNT\""
+    echo 'mkdir -p /opt'
+    echo 'if ! grep -qF "entware_opt_mount.img" /proc/mounts 2>/dev/null; then'
+    echo '  mount -o loop "$ENTWARE_IMG" /opt || exit 1'
+    echo 'fi'
+    echo 'if [ -f /opt/etc/init.d/rc.unslung ]; then'
+    echo '  /opt/etc/init.d/rc.unslung start'
+    echo 'fi'
+    echo 'if [ ! -e /usr/libexec/sftp-server ] && [ -f /opt/libexec/sftp-server ]; then'
+    echo '  ln -sf /opt/libexec/sftp-server /usr/libexec/sftp-server'
+    echo 'fi'
+    echo 'if ! grep -qF "/opt/bin:/opt/sbin" /etc/profile 2>/dev/null; then'
+    echo '  echo '"'"'export PATH=/opt/bin:/opt/sbin:$PATH'"'"' >> /etc/profile'
+    echo 'fi'
+  } > "$INITD_FOLDER/S48entware"
+  chmod +x "$INITD_FOLDER/S48entware"
+}
+
 function k1c_2025_opt_mount(){
-  if [ -f $ENTWARE_OPT_MOUNT ]; then
+  if [ -f "$ENTWARE_OPT_MOUNT" ]; then
     echo "Info: Existing /opt persistence file found. Skipping creation."
   else
-    # Create 500mb image
     echo "Info: Creating /opt image for persistence..."
-    dd if=/dev/zero of=$ENTWARE_OPT_MOUNT bs=1M count=500
-    mkfs.ext4 -F $ENTWARE_OPT_MOUNT
+    dd if=/dev/zero of="$ENTWARE_OPT_MOUNT" bs=1M count=500
+    mkfs.ext4 -F "$ENTWARE_OPT_MOUNT"
   fi
 
-  if [ ! -f $INITD_FOLDER/S56entware ]; then
-    echo "Adding entware script to $INITD_FOLDER"
-    cat << EOF > $INITD_FOLDER/S56entware
-    #!/bin/sh
-    mkdir -p /opt
-    mount -o loop $ENTWARE_OPT_MOUNT /opt
+  k1c_2025_write_entware_init_script
 
-    # Start Entware services (if any are installed like SSH, lighttpd, etc.)
-    if [ -f /opt/etc/init.d/rc.unslung ]; then
-        /opt/etc/init.d/rc.unslung start
-    fi
-
-    ln -s /opt/libexec/sftp-server /usr/libexec/sftp-server
-
-    # Inject Entware into the system PATH globally for all users
-    echo 'export PATH=/opt/bin:/opt/sbin:$PATH' >> /etc/profile
-EOF
-    chmod +x $INITD_FOLDER/S56entware
+  echo "Info: Mounting Entware /opt for this session..."
+  if ! grep -qF "entware_opt_mount.img" /proc/mounts 2>/dev/null; then
+    mount -o loop "$ENTWARE_OPT_MOUNT" /opt
   fi
+}
 
-  #Manually mount for now
-  mount -o loop $ENTWARE_OPT_MOUNT /opt
+# Call when cameras are (re)installed so existing printers get S48 without reinstalling Entware.
+function k1c_2025_migrate_entware_boot_if_needed() {
+  [ "$model" = "K1C_2025" ] || return 0
+  [ -f "$ENTWARE_OPT_MOUNT" ] || return 0
+  k1c_2025_write_entware_init_script
 }
 
 function install_entware(){
@@ -65,8 +81,8 @@ function install_entware(){
           opkg update
 
           opkg install openssh-sftp-server
-          #Manually link. Will be done on boot by S56entware
-          ln -s /opt/libexec/sftp-server /usr/libexec/sftp-server
+          # Symlink also created on boot by S48entware
+          ln -sf /opt/libexec/sftp-server /usr/libexec/sftp-server
         else
           prepare_opt
           chmod 755 "$ENTWARE_URL"
@@ -94,10 +110,18 @@ function remove_entware(){
     case "${yn}" in
       Y|y)
         echo -e "${white}"
-        echo -e "Info: Removing startup script..."
-        rm -f /etc/init.d/S50unslung
-        echo -e "Info: Removing directories..."
-        rm -rf /usr/data/opt
+        if [ "$model" = "K1C_2025" ]; then
+          echo -e "Info: Removing Entware boot scripts (K1C 2025)..."
+          rm -f "$INITD_FOLDER/S48entware" "$INITD_FOLDER/S56entware"
+          if grep -qF "entware_opt_mount.img" /proc/mounts 2>/dev/null; then
+            umount /opt 2>/dev/null || true
+          fi
+        else
+          echo -e "Info: Removing startup script..."
+          rm -f /etc/init.d/S50unslung
+          echo -e "Info: Removing directories..."
+          rm -rf /usr/data/opt
+        fi
         if [ -L /opt ]; then
           rm /opt
           mkdir -p /opt

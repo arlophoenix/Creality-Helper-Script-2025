@@ -4,11 +4,34 @@
 case "$1" in
   start)
     echo "Starting Built-in Camera..."
+    ENTWARE_IMG="/usr/data/entware_opt_mount.img"
+    if [ ! -x /opt/bin/mjpg_streamer ] && [ -f "$ENTWARE_IMG" ]; then
+      if ! grep -qF "entware_opt_mount.img" /proc/mounts 2>/dev/null; then
+        mkdir -p /opt
+        mount -o loop "$ENTWARE_IMG" /opt || exit 1
+      fi
+    fi
+    if [ -x /opt/etc/init.d/rc.unslung ]; then
+      /opt/etc/init.d/rc.unslung start 2>/dev/null || true
+    fi
+    TIMEOUT=20
+    while [ ! -x /opt/bin/mjpg_streamer ] && [ "$TIMEOUT" -gt 0 ]; do
+      sleep 1
+      TIMEOUT=`expr $TIMEOUT - 1`
+    done
+    if [ ! -x /opt/bin/mjpg_streamer ]; then
+      echo "Error: mjpg_streamer not found in /opt/bin!"
+      exit 1
+    fi
     if [ ! -e /dev/video0 ]; then
       echo "Error: Built-in camera /dev/video0 not found!"
       exit 1
     fi
-    /opt/bin/mjpg_streamer -b -i "/opt/lib/mjpg-streamer/input_uvc.so -d /dev/video0 -r 1280x720 -f 15" -o "/opt/lib/mjpg-streamer/output_http.so -p 8080"
+    if [ -f /usr/apps/etc/init.d/CS59quintusp ]; then
+      /usr/apps/etc/init.d/CS59quintusp stop 2>/dev/null || true
+    fi
+    killall quintusp 2>/dev/null || true
+    /opt/bin/mjpg_streamer -b -i "/opt/lib/mjpg-streamer/input_uvc.so -d /dev/video0 -r 320x240 -f 15" -o "/opt/lib/mjpg-streamer/output_http.so -p 8080"
     ;;
   stop)
     echo "Stopping Built-in Camera..."
@@ -22,7 +45,7 @@ case "$1" in
     "$0" start
     ;;
   *)
-    echo "Usage: /etc/init.d/S50builtin_camera {start|stop|restart}"
+    echo "Usage: $0 {start|stop|restart}"
     exit 1
 esac
 

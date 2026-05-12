@@ -211,10 +211,10 @@ function enable_camera_settings(){
       Y|y)
         echo -e "${white}"
         if [ "$model" = "K1C_2025" ]; then
-          if [ -f "$BUILTIN_CAMERA_FILE" ]; then
+          if [ -f "$BUILTIN_CAMERA_FILE" ] || [ -f "$BUILTIN_CAMERA_LEGACY_FILE" ]; then
             configure_builtin_camera_k1c_2025
           fi
-          if [ -f "$USB_CAMERA_FILE" ]; then
+          if [ -f "$USB_CAMERA_FILE" ] || [ -f "$USB_CAMERA_LEGACY_FILE" ]; then
             configure_usb_camera_k1c_2025
           fi
         elif grep -q "#\[webcam Camera\]" "$MOONRAKER_CFG" ; then

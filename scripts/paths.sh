@@ -154,12 +154,20 @@ function set_paths() {
   CAMERA_SETTINGS_K1C_2025_URL="${HS_FILES}/camera-settings/camera-settings-k1c-2025.cfg"
   
   # USB Camera Support
-  USB_CAMERA_FILE="${INITD_FOLDER}/S50usb_camera"
+  if [ "$model" = "K1C_2025" ]; then
+    USB_CAMERA_FILE="${INITD_FOLDER}/S58usb_camera"
+  else
+    USB_CAMERA_FILE="${INITD_FOLDER}/S50usb_camera"
+  fi
+  USB_CAMERA_LEGACY_FILE="${INITD_FOLDER}/S50usb_camera"
   USB_CAMERA_SINGLE_URL="${HS_FILES}/services/S50usb_camera-single"
   USB_CAMERA_DUAL_URL="${HS_FILES}/services/S50usb_camera-dual"
   USB_CAMERA_K1C_2025_URL="${HS_FILES}/services/S50usb_camera-k1c-2025"
-  BUILTIN_CAMERA_FILE="${INITD_FOLDER}/S50builtin_camera"
+  BUILTIN_CAMERA_FILE="${INITD_FOLDER}/S57builtin_camera"
+  BUILTIN_CAMERA_LEGACY_FILE="${INITD_FOLDER}/S50builtin_camera"
   BUILTIN_CAMERA_K1C_2025_URL="${HS_FILES}/services/S50builtin_camera-k1c-2025"
+  QUINTUSP_SERVICE_FILE="${INITD_FOLDER}/CS59quintusp"
+  QUINTUSP_DISABLED_FILE="${INITD_FOLDER}/disabled.CS59quintusp"
   
   # OctoEverywhere #
   OCTOEVERYWHERE_FOLDER="${USR_DATA}/octoeverywhere"

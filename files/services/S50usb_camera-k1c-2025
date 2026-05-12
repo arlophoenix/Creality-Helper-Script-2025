@@ -4,6 +4,25 @@
 case "$1" in
   start)
     echo "Starting USB Camera..."
+    ENTWARE_IMG="/usr/data/entware_opt_mount.img"
+    if [ ! -x /opt/bin/mjpg_streamer ] && [ -f "$ENTWARE_IMG" ]; then
+      if ! grep -qF "entware_opt_mount.img" /proc/mounts 2>/dev/null; then
+        mkdir -p /opt
+        mount -o loop "$ENTWARE_IMG" /opt || exit 1
+      fi
+    fi
+    if [ -x /opt/etc/init.d/rc.unslung ]; then
+      /opt/etc/init.d/rc.unslung start 2>/dev/null || true
+    fi
+    TIMEOUT=20
+    while [ ! -x /opt/bin/mjpg_streamer ] && [ "$TIMEOUT" -gt 0 ]; do
+      sleep 1
+      TIMEOUT=`expr $TIMEOUT - 1`
+    done
+    if [ ! -x /opt/bin/mjpg_streamer ]; then
+      echo "Error: mjpg_streamer not found in /opt/bin!"
+      exit 1
+    fi
     PORT=8082
     BUILTIN_DEV="/dev/video0"
     V4L_DEVS=$(v4l2-ctl --list-devices | grep -A1 usb | sed 's/^[[:space:]]*//g' | grep '^/dev' | grep -v "^$BUILTIN_DEV$")
@@ -12,7 +31,7 @@ case "$1" in
       exit 1
     fi
     for V4L_DEV in $V4L_DEVS; do
-      /opt/bin/mjpg_streamer -b -i "/opt/lib/mjpg-streamer/input_uvc.so -d $V4L_DEV -r 1280x720 -f 15" -o "/opt/lib/mjpg-streamer/output_http.so -p $PORT"
+      /opt/bin/mjpg_streamer -b -i "/opt/lib/mjpg-streamer/input_uvc.so -d $V4L_DEV -r 320x240 -f 15" -o "/opt/lib/mjpg-streamer/output_http.so -p $PORT"
       PORT=`expr $PORT + 1`
     done
     ;;
@@ -28,7 +47,7 @@ case "$1" in
     "$0" start
     ;;
   *)
-    echo "Usage: /etc/init.d/S50usb_camera {start|stop|restart}"
+    echo "Usage: $0 {start|stop|restart}"
     exit 1
 esac
 

@@ -102,9 +102,9 @@ function remove_menu_k1c_2025() {
           error_msg "Entware is needed to use OctoEverywhere, please uninstall it first!"
         elif [ -d "$MOONRAKER_OBICO_FOLDER" ]; then
           error_msg "Entware is needed to use Moonraker Obico, please uninstall it first!"
-        elif [ -f "$USB_CAMERA_FILE" ]; then
+        elif [ -f "$USB_CAMERA_FILE" ] || [ -f "$USB_CAMERA_LEGACY_FILE" ]; then
           error_msg "Entware is needed to use USB Camera Support, please uninstall it first!"
-        elif [ -f "$BUILTIN_CAMERA_FILE" ]; then
+        elif [ -f "$BUILTIN_CAMERA_FILE" ] || [ -f "$BUILTIN_CAMERA_LEGACY_FILE" ]; then
           error_msg "Entware is needed to use Built-in Camera Fix, please uninstall it first!"
         else
           run "remove_entware" "remove_menu_ui_k1c_2025"
@@ -135,13 +135,13 @@ function remove_menu_k1c_2025() {
           run "remove_go2rtc" "remove_menu_ui_k1c_2025"
         fi;;
       7)
-        if [ ! -f "$USB_CAMERA_FILE" ]; then
+        if [ ! -f "$USB_CAMERA_FILE" ] && [ ! -f "$USB_CAMERA_LEGACY_FILE" ]; then
           error_msg "USB Camera Support is not installed!"
         else
           run "remove_usb_camera" "remove_menu_ui_k1c_2025"
         fi;;
       8)
-        if [ ! -f "$BUILTIN_CAMERA_FILE" ]; then
+        if [ ! -f "$BUILTIN_CAMERA_FILE" ] && [ ! -f "$BUILTIN_CAMERA_LEGACY_FILE" ]; then
           error_msg "Built-in Camera Fix is not installed!"
         else
           run "remove_builtin_camera" "remove_menu_ui_k1c_2025"
