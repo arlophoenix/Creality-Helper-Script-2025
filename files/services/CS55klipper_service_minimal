@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Klipper service (minimal, K1C 2025+ apps layout).
+# Klipper service (minimal, K1 2025+ apps layout).
 # - No copy_config / update_config on start (Helper Script "Prevent updating" goal).
 # - No mcu_reset via /etc/init.d/S57klipper_mcu — that init script is not used on
 #   this platform; MCU maintenance is via /usr/apps/usr/bin/*_klipper_mcu_restart.sh.

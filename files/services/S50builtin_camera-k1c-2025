@@ -1,5 +1,5 @@
 #!/bin/sh
-# K1C 2025 Built-in Camera Service
+# K1 2025 Built-in Camera Service
 
 case "$1" in
   start)

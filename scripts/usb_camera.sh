@@ -18,13 +18,13 @@ function builtin_camera_message(){
   title 'Built-in Camera Fix' "${yellow}"
   inner_line
   hr
-  echo -e " в”‚ ${cyan}This allows to use the K1C 2025 built-in camera with        ${white}в”‚"
+  echo -e " в”‚ ${cyan}This allows to use the K1 2025 built-in camera with        ${white}в”‚"
   echo -e " в”‚ ${cyan}Fluidd and Mainsail through mjpg-streamer.                  ${white}в”‚"
   hr
   bottom_line
 }
 
-function configure_usb_camera_k1c_2025(){
+function configure_usb_camera_k1_2025(){
   local usb_dev
 
   if [ ! -f "$MOONRAKER_CFG" ]; then
@@ -53,7 +53,7 @@ EOF
   fi
 }
 
-function configure_builtin_camera_k1c_2025(){
+function configure_builtin_camera_k1_2025(){
   if [ ! -f "$MOONRAKER_CFG" ]; then
     return
   fi
@@ -82,7 +82,7 @@ function ensure_mjpg_streamer_packages(){
     return
   fi
 
-  if [ "$model" = "K1C_2025" ]; then
+  if [ "$model" = "K1_2025" ]; then
     echo -e "Info: Updating Entware repository for mjpg-streamer packages..."
     sed -i '1s|.*|src/gz entware http://bin.tranducanh.com/mipselsf-k3.4|' /opt/etc/opkg.conf
     "$ENTWARE_FILE" update
@@ -95,7 +95,7 @@ function ensure_mjpg_streamer_packages(){
 }
 
 function disable_entware_builtin_mjpg_streamer(){
-  if [ "$model" != "K1C_2025" ]; then
+  if [ "$model" != "K1_2025" ]; then
     return
   fi
 
@@ -109,7 +109,7 @@ function disable_entware_builtin_mjpg_streamer(){
 }
 
 function restore_entware_builtin_mjpg_streamer(){
-  if [ "$model" != "K1C_2025" ]; then
+  if [ "$model" != "K1_2025" ]; then
     return
   fi
 
@@ -127,8 +127,8 @@ function install_usb_camera(){
     case "${yn}" in
       Y|y)
         echo -e "${white}"
-        if [ "$model" = "K1C_2025" ]; then
-          k1c_2025_migrate_entware_boot_if_needed
+        if [ "$model" = "K1_2025" ]; then
+          k1_2025_migrate_entware_boot_if_needed
           disable_entware_builtin_mjpg_streamer
         fi
         echo -e "Info: Copying file..."
@@ -136,8 +136,8 @@ function install_usb_camera(){
         [ "$USB_CAMERA_FILE" != "$USB_CAMERA_LEGACY_FILE" ] && [ -f "$USB_CAMERA_LEGACY_FILE" ] && "$USB_CAMERA_LEGACY_FILE" stop
         set -e
         rm -f "$USB_CAMERA_LEGACY_FILE"
-        if [ "$model" = "K1C_2025" ]; then
-          cp "$USB_CAMERA_K1C_2025_URL" "$USB_CAMERA_FILE"
+        if [ "$model" = "K1_2025" ]; then
+          cp "$USB_CAMERA_K1_2025_URL" "$USB_CAMERA_FILE"
         elif [ "$model" = "K1" ]; then
           cp "$USB_CAMERA_DUAL_URL" "$USB_CAMERA_FILE"
         else
@@ -178,8 +178,8 @@ function install_usb_camera(){
         disable_entware_builtin_mjpg_streamer
         echo -e "Info: Starting service..."
         "$USB_CAMERA_FILE" start
-        if [ "$model" = "K1C_2025" ]; then
-          configure_usb_camera_k1c_2025
+        if [ "$model" = "K1_2025" ]; then
+          configure_usb_camera_k1_2025
           if [ -f "$INITD_FOLDER"/S56moonraker_service ]; then
             stop_moonraker
             start_moonraker
@@ -208,14 +208,14 @@ function install_builtin_camera(){
     case "${yn}" in
       Y|y)
         echo -e "${white}"
-        k1c_2025_migrate_entware_boot_if_needed
+        k1_2025_migrate_entware_boot_if_needed
         disable_entware_builtin_mjpg_streamer
         echo -e "Info: Copying file..."
         set +e
         [ -f "$BUILTIN_CAMERA_LEGACY_FILE" ] && "$BUILTIN_CAMERA_LEGACY_FILE" stop
         set -e
         rm -f "$BUILTIN_CAMERA_LEGACY_FILE"
-        cp "$BUILTIN_CAMERA_K1C_2025_URL" "$BUILTIN_CAMERA_FILE"
+        cp "$BUILTIN_CAMERA_K1_2025_URL" "$BUILTIN_CAMERA_FILE"
         chmod 755 "$BUILTIN_CAMERA_FILE"
         echo -e "Info: Installing necessary packages..."
         ensure_mjpg_streamer_packages
@@ -223,7 +223,7 @@ function install_builtin_camera(){
         disable_entware_builtin_mjpg_streamer
         echo -e "Info: Starting service..."
         "$BUILTIN_CAMERA_FILE" start
-        configure_builtin_camera_k1c_2025
+        configure_builtin_camera_k1_2025
         if [ -f "$INITD_FOLDER"/S56moonraker_service ]; then
           stop_moonraker
           start_moonraker
@@ -301,7 +301,7 @@ function remove_usb_camera(){
         echo -e "Info: Removing file..."
         rm -f "$USB_CAMERA_FILE"
         rm -f "$USB_CAMERA_LEGACY_FILE"
-        if [ "$model" = "K1C_2025" ] && [ -f "$MOONRAKER_CFG" ]; then
+        if [ "$model" = "K1_2025" ] && [ -f "$MOONRAKER_CFG" ]; then
           echo -e "Info: Removing USB Camera configurations in moonraker.conf file..."
           sed -i '/^\[webcam usb\]/,/^$/d' "$MOONRAKER_CFG"
           if [ -f "$INITD_FOLDER"/S56moonraker_service ]; then
@@ -311,7 +311,7 @@ function remove_usb_camera(){
         fi
         echo -e "Info: Removing packages..."
         set +e
-        if [ "$model" != "K1C_2025" ] || { [ ! -f "$BUILTIN_CAMERA_FILE" ] && [ ! -f "$BUILTIN_CAMERA_LEGACY_FILE" ]; }; then
+        if [ "$model" != "K1_2025" ] || { [ ! -f "$BUILTIN_CAMERA_FILE" ] && [ ! -f "$BUILTIN_CAMERA_LEGACY_FILE" ]; }; then
           "$ENTWARE_FILE" --autoremove remove mjpg-streamer-www
           "$ENTWARE_FILE" --autoremove remove mjpg-streamer-output-http
           "$ENTWARE_FILE" --autoremove remove mjpg-streamer-input-uvc

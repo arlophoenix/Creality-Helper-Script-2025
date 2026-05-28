@@ -1,5 +1,5 @@
 #!/bin/sh
-# K1C 2025 USB Camera Service
+# K1 2025 USB Camera Service
 
 get_camera_resolution() {
   local dev="$1"

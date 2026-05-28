@@ -8,18 +8,18 @@ function go2rtc_message(){
   inner_line
   hr
   echo -e " │ ${cyan}Go2rtc is a versatile camera streaming application             ${white}│"
-  echo -e " │ ${cyan}On the K1C 2025, this can read and restream the                ${white}│"
+  echo -e " │ ${cyan}On the K1 2025, this can read and restream the                ${white}│"
   echo -e " │ ${cyan}camera feed directly for better stability and support          ${white}│"
   hr
   bottom_line
 }
 
-function configure_go2rtc_k1c_2025(){
+function configure_go2rtc_k1_2025(){
   local nginx_conf
 
   if [ -f "$MOONRAKER_CFG" ]; then
     if ! grep -q '^\[webcam chassis\]' "$MOONRAKER_CFG"; then
-      echo -e "Info: Adding K1C 2025 chassis camera to moonraker.conf..."
+      echo -e "Info: Adding K1 2025 chassis camera to moonraker.conf..."
       cat >> "$MOONRAKER_CFG" <<EOF
 
 [webcam chassis]
@@ -36,7 +36,7 @@ rotation: 0
 aspect_ratio: 16:9
 EOF
     else
-      echo -e "Info: K1C 2025 chassis camera is already configured in moonraker.conf. Keeping existing camera URLs..."
+      echo -e "Info: K1 2025 chassis camera is already configured in moonraker.conf. Keeping existing camera URLs..."
     fi
   fi
 
@@ -82,8 +82,8 @@ function install_go2rtc(){
         if [ ! -f "$GO2RTC_CONFIG_FILE" ]; then
           cp "$GO2RTC_CONFIG_FILE_URL" "$GO2RTC_CONFIG_FILE"
         fi
-        if [ "$model" = "K1C_2025" ] && [ -d "$MOONRAKER_FOLDER" ]; then
-          configure_go2rtc_k1c_2025
+        if [ "$model" = "K1_2025" ] && [ -d "$MOONRAKER_FOLDER" ]; then
+          configure_go2rtc_k1_2025
           stop_moonraker
           start_moonraker
           restart_nginx

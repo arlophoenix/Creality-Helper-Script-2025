@@ -14,8 +14,8 @@ function entware_message(){
 }
 
 # Writes S48entware so /opt is mounted before camera services need Entware binaries.
-# Removes the legacy S56entware startup script when migrating existing K1C 2025 installs.
-function k1c_2025_write_entware_init_script() {
+# Removes the legacy S56entware startup script when migrating existing K1 2025 installs.
+function k1_2025_write_entware_init_script() {
   echo "Info: Installing Entware boot mount (S48entware, before S50 camera services)..."
   rm -f "$INITD_FOLDER/S56entware"
   {
@@ -39,7 +39,7 @@ function k1c_2025_write_entware_init_script() {
   chmod +x "$INITD_FOLDER/S48entware"
 }
 
-function k1c_2025_opt_mount(){
+function k1_2025_opt_mount(){
   if [ -f "$ENTWARE_OPT_MOUNT" ]; then
     echo "Info: Existing /opt persistence file found. Skipping creation."
   else
@@ -48,7 +48,7 @@ function k1c_2025_opt_mount(){
     mkfs.ext4 -F "$ENTWARE_OPT_MOUNT"
   fi
 
-  k1c_2025_write_entware_init_script
+  k1_2025_write_entware_init_script
 
   echo "Info: Mounting Entware /opt for this session..."
   if ! grep -qF "entware_opt_mount.img" /proc/mounts 2>/dev/null; then
@@ -57,10 +57,10 @@ function k1c_2025_opt_mount(){
 }
 
 # Call when cameras are (re)installed so existing printers get S48 without reinstalling Entware.
-function k1c_2025_migrate_entware_boot_if_needed() {
-  [ "$model" = "K1C_2025" ] || return 0
+function k1_2025_migrate_entware_boot_if_needed() {
+  [ "$model" = "K1_2025" ] || return 0
   [ -f "$ENTWARE_OPT_MOUNT" ] || return 0
-  k1c_2025_write_entware_init_script
+  k1_2025_write_entware_init_script
 }
 
 function install_entware(){
@@ -73,8 +73,8 @@ function install_entware(){
         echo -e "${white}"
         echo -e "Info: Running Entware installer..."
         set +e
-        if [ "$model" = "K1C_2025" ]; then
-          k1c_2025_opt_mount
+        if [ "$model" = "K1_2025" ]; then
+          k1_2025_opt_mount
           $HS_FILES/fixes/curl -L "https://bin.entware.net/mipselsf-k3.4/installer/generic.sh" | sh
           export PATH=/opt/bin:/opt/sbin:$PATH
           sed -i '1s|.*|src/gz entware http://bin.tranducanh.com/mipselsf-k3.4|' /opt/etc/opkg.conf
@@ -110,8 +110,8 @@ function remove_entware(){
     case "${yn}" in
       Y|y)
         echo -e "${white}"
-        if [ "$model" = "K1C_2025" ]; then
-          echo -e "Info: Removing Entware boot scripts (K1C 2025)..."
+        if [ "$model" = "K1_2025" ]; then
+          echo -e "Info: Removing Entware boot scripts (K1 2025)..."
           rm -f "$INITD_FOLDER/S48entware" "$INITD_FOLDER/S56entware"
           if grep -qF "entware_opt_mount.img" /proc/mounts 2>/dev/null; then
             umount /opt 2>/dev/null || true

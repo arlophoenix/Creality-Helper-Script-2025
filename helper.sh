@@ -8,7 +8,7 @@ HELPER_SCRIPT_FOLDER="$(dirname "$(readlink -f "$0")")"
 for script in "${HELPER_SCRIPT_FOLDER}/scripts/"*.sh; do . "${script}"; done
 for script in "${HELPER_SCRIPT_FOLDER}/scripts/menu/"*.sh; do . "${script}"; done
 for script in "${HELPER_SCRIPT_FOLDER}/scripts/menu/K1/"*.sh; do . "${script}"; done
-for script in "${HELPER_SCRIPT_FOLDER}/scripts/menu/K1C_2025/"*.sh; do . "${script}"; done
+for script in "${HELPER_SCRIPT_FOLDER}/scripts/menu/K1_2025/"*.sh; do . "${script}"; done
 for script in "${HELPER_SCRIPT_FOLDER}/scripts/menu/3V3/"*.sh; do . "${script}"; done
 for script in "${HELPER_SCRIPT_FOLDER}/scripts/menu/3KE/"*.sh; do . "${script}"; done
 for script in "${HELPER_SCRIPT_FOLDER}/scripts/menu/10SE/"*.sh; do . "${script}"; done
@@ -73,9 +73,10 @@ function update_menu() {
 
 function detect_model() {
   if (command -v get_sn_mac.sh > /dev/null); then
-    get_model=$( get_sn_mac.sh model 2>&1 || get_sn_mac.sh model_str 2>&1 )
-    if echo "$get_model" | grep -iq "K1C"; then
-      model="K1C_2025"
+    get_model=$( get_sn_mac.sh model 2>&1 || echo "")
+    if [ -z "$get_model" ] && get_sn_mac.sh model_str 2>&1 | grep -iq 'K1'; then
+      #K1 2025, K1Max 2025, ...
+      model="K1_2025"
     elif echo "$get_model" | grep -iq "K1"; then
       model="K1"
     elif echo "$get_model" | grep -iq "F001"; then
@@ -104,7 +105,7 @@ if [ ! -L "$BIN_FOLDER"/helper ]; then
 fi
 rm -rf /root/.cache
 
-if [ -z "$model" ] && [ "$model" != "K1C_2025" ] && [ ! -f $INITD_FOLDER/S58factoryreset ]; then
+if [ -z "$model" ] && [ "$model" != "K1_2025" ] && [ ! -f $INITD_FOLDER/S58factoryreset ]; then
   cp "$HS_FILES/services/S58factoryreset" $INITD_FOLDER/S58factoryreset
   chmod 755 $INITD_FOLDER/S58factoryreset
 fi

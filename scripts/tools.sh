@@ -63,7 +63,7 @@ function add_chassis_light_control_message(){
   title 'Add chassis light control' "${yellow}"
   inner_line
   hr
-  echo -e " в”‚ ${cyan}This adds K1C 2025 chassis light control to printer.cfg.     ${white}в”‚"
+  echo -e " в”‚ ${cyan}This adds K1 2025 chassis light control to printer.cfg.     ${white}в”‚"
   echo -e " в”‚ ${cyan}The LED is connected to PA8.                                 ${white}в”‚"
   hr
   bottom_line
@@ -221,12 +221,12 @@ function enable_camera_settings(){
     case "${yn}" in
       Y|y)
         echo -e "${white}"
-        if [ "$model" = "K1C_2025" ]; then
+        if [ "$model" = "K1_2025" ]; then
           if [ -f "$BUILTIN_CAMERA_FILE" ] || [ -f "$BUILTIN_CAMERA_LEGACY_FILE" ]; then
-            configure_builtin_camera_k1c_2025
+            configure_builtin_camera_k1_2025
           fi
           if [ -f "$USB_CAMERA_FILE" ] || [ -f "$USB_CAMERA_LEGACY_FILE" ]; then
-            configure_usb_camera_k1c_2025
+            configure_usb_camera_k1_2025
           fi
         elif grep -q "#\[webcam Camera\]" "$MOONRAKER_CFG" ; then
           echo -e "Info: Enabling camera settings in moonraker.conf file..."
@@ -265,7 +265,7 @@ function disable_camera_settings(){
     case "${yn}" in
       Y|y)
         echo -e "${white}"
-        if [ "$model" = "K1C_2025" ]; then
+        if [ "$model" = "K1_2025" ]; then
           if grep -q "^\[webcam chassis\]\|^\[webcam usb\]" "$MOONRAKER_CFG"; then
             echo -e "Info: Disabling camera settings in moonraker.conf file..."
             sed -i '/^\[webcam chassis\]/,/^$/d' "$MOONRAKER_CFG"
