@@ -29,6 +29,7 @@ function k1_2025_write_entware_init_script() {
     echo 'if [ -f /opt/etc/init.d/rc.unslung ]; then'
     echo '  /opt/etc/init.d/rc.unslung start'
     echo 'fi'
+    echo 'mkdir -p /usr/libexec'
     echo 'if [ ! -e /usr/libexec/sftp-server ] && [ -f /opt/libexec/sftp-server ]; then'
     echo '  ln -sf /opt/libexec/sftp-server /usr/libexec/sftp-server'
     echo 'fi'
