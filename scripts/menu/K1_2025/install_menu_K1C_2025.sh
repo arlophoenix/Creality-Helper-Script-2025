@@ -14,7 +14,7 @@ function install_menu_ui_k1_2025() {
   hr
   subtitle '•UTILITIES:'
   menu_option ' 4' 'Install' 'Entware'
-  menu_option ' 5' 'Install' 'Klipper Gcode Shell Command !!!UNTESTED!!!'
+  menu_option ' 5' 'Install' 'Klipper Gcode Shell Command'
   hr
   subtitle '•CAMERA:'
   menu_option ' 6' 'Install' 'Go2rtc'
