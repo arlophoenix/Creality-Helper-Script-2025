@@ -47,11 +47,12 @@ function format_uptime() {
 }
 
 function system_menu_ui() {
-  memfree=`cat /proc/meminfo | grep MemFree | awk {'print $2'}`
+  memavail=`cat /proc/meminfo | grep MemAvailable | awk {'print $2'}`
+  [ -z "$memavail" ] && memavail=`cat /proc/meminfo | grep MemFree | awk {'print $2'}`
   memtotal=`cat /proc/meminfo | grep MemTotal | awk {'print $2'}`
-  pourcent=$((($memfree * 100)/$memtotal))
+  pourcent=$((($memavail * 100)/$memtotal))
   diskused=`df -h | grep /dev/mmcblk0p10 | awk {'print $3 " / " $2 " (" $4 " available)" '}`
-  process=`ps ax | wc -l | tr -d " "`
+  process=`ps | wc -l | tr -d " "`
   uptime=`cat /proc/uptime | cut -f1 -d.`
   formatted_uptime=$(format_uptime $uptime)
   load=`awk -v cpus=2 '{printf "%.2f%% (1 min) | %.2f%% (5 min) | %.2f%% (15 min)\n", $1*100/cpus, $2*100/cpus, $3*100/cpus}' /proc/loadavg`
@@ -68,7 +69,7 @@ function system_menu_ui() {
   system_line " IP Address" "$(check_connection)"
   system_line "MAC Address" "$mac_address"
   system_line "  CPU Usage" "$load"
-  system_line "  RAM Usage" "$(($memfree/1024)) MB / $(($memtotal/1024)) MB ($pourcent% available)"
+  system_line "   RAM Free" "$(($memavail/1024)) MB / $(($memtotal/1024)) MB ($pourcent% available)"
   system_line " Disk Usage" "$diskused"
   system_line "     Uptime" "$formatted_uptime"
   hr
