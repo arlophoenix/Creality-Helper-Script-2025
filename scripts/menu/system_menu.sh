@@ -64,8 +64,16 @@ function system_menu_ui() {
   uptime=`cat /proc/uptime | cut -f1 -d.`
   formatted_uptime=$(format_uptime $uptime)
   load=`awk -v cpus=2 '{printf "%.2f%% (1 min) | %.2f%% (5 min) | %.2f%% (15 min)\n", $1*100/cpus, $2*100/cpus, $3*100/cpus}' /proc/loadavg`
-  device_sn=$(cat /usr/data/creality/userdata/config/system_config.json | grep -o '"device_sn":"[^"]*' | awk -F '"' '{print $4}')
-  mac_address=$(cat /usr/data/creality/userdata/config/system_config.json | grep -o '"device_mac":"[^"]*' | awk -F '"' '{print $4}' | sed 's/../&:/g; s/:$//')
+  if [ "$model" = "K1_2025" ]; then
+    # 2025 firmware dropped system_config.json (same as system_version.json); SN/MAC
+    # come from get_sn_mac.sh, the helper detect_model already uses.
+    device_sn=$(get_sn_mac.sh sn 2>/dev/null)
+    mac_address=$(get_sn_mac.sh mac 2>/dev/null | sed 's/../&:/g; s/:$//')
+  else
+    sysconf="/usr/data/creality/userdata/config/system_config.json"
+    device_sn=$(grep -o '"device_sn":"[^"]*' "$sysconf" 2>/dev/null | awk -F '"' '{print $4}')
+    mac_address=$(grep -o '"device_mac":"[^"]*' "$sysconf" 2>/dev/null | awk -F '"' '{print $4}' | sed 's/../&:/g; s/:$//')
+  fi
   top_line
   title '[ SYSTEM MENU ]' "${yellow}"
   inner_line
