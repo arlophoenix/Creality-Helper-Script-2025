@@ -61,6 +61,7 @@ function info_menu_ui_k1_2025() {
   info_line "$(check_folder_k1_2025 "$NOZZLE_CLEANING_FOLDER")" 'Nozzle Cleaning Fan Control'
   info_line "$(check_file_k1_2025 "$FAN_CONTROLS_FILE")" 'Fans Control Macros'
   info_line "$(check_folder_k1_2025 "$IMP_SHAPERS_FOLDER")" 'Improved Shapers Calibrations'
+  info_line "$(check_file_k1_2025 "$SHAPER_DEFS_FILE")" 'Restore Input Shapers'
   info_line "$(check_file_k1_2025 "$USEFUL_MACROS_FILE")" 'Useful Macros'
   info_line "$(check_file_k1_2025 "$SAVE_ZOFFSET_FILE")" 'Save Z-Offset Macros'
   info_line "$(check_file_k1_2025 "$SCREWS_ADJUST_FILE")" 'Screws Tilt Adjust Support'

@@ -22,6 +22,9 @@ function remove_menu_ui_k1_2025() {
   menu_option ' 8' 'Remove' 'Built-in Camera Fix'
   menu_option ' 9' 'Remove' 'Camera Settings Control'
   menu_option '10' 'Remove' 'Moonraker Timelapse'
+  hr
+  subtitle '•IMPROVEMENTS:'
+  menu_option '11' 'Remove' 'Restore Input Shapers'
 #  hr
 #  subtitle '•IMPROVEMENTS:'
 #  disabled_menu_option ' 6' 'Remove' 'Klipper Adaptive Meshing & Purging'
@@ -158,6 +161,12 @@ function remove_menu_k1_2025() {
           error_msg "Moonraker Timelapse is not installed!"
         else
           run "remove_moonraker_timelapse" "remove_menu_ui_k1_2025"
+        fi;;
+      11)
+        if [ ! -f "$SHAPER_DEFS_FILE" ]; then
+          error_msg "Restore Input Shapers is not installed!"
+        else
+          run "remove_restore_input_shapers" "remove_menu_ui_k1_2025"
         fi;;
 
 #      6)
