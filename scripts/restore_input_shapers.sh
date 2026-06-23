@@ -44,8 +44,8 @@ function install_restore_input_shapers(){
           error_msg "Restore Input Shapers is not verified for this firmware yet!"
           echo -e " ${cyan}Detected firmware: ${white}${fw:-unknown}${white}"
           echo -e " ${cyan}Verified firmware: ${white}${RESTORE_SHAPERS_SUPPORTED_FW}${white}"
-          echo -e " ${cyan}Please report your version so it can be vetted and added:${white}"
-          echo -e " ${cyan}https://github.com/C0DEbrained/Creality-Helper-Script-2025/issues${white}"
+          echo -e " ${cyan}Please report your version on Discord so it can be vetted and added:${white}"
+          echo -e " ${cyan}https://discord.gg/BznpvBfrnw${white}"
           return
         fi
         # 1. Restore the full shaper model set.
