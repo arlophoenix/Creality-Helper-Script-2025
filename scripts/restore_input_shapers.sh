@@ -2,6 +2,13 @@
 
 set -e
 
+# Firmware builds whose stock Klipper this restore is verified against. A future
+# Creality firmware could ship a different shaper_defs (or react differently to the
+# change), so klippy is only modified on known-good versions, matched as a substring
+# of /etc/version. Space-separated; extend as builds are confirmed. Anyone on an
+# unlisted build is asked to report it first rather than have klippy touched blindly.
+RESTORE_SHAPERS_SUPPORTED_FW="V1.0.0.22.20250711S"
+
 function restore_input_shapers_message(){
   top_line
   title 'Restore Input Shapers' "${yellow}"
@@ -23,6 +30,23 @@ function install_restore_input_shapers(){
     case "${yn}" in
       Y|y)
         echo -e "${white}"
+        # Bail out on unverified firmware before touching klippy (see note at top).
+        fw="$(cat /etc/version 2>/dev/null)"
+        verified=""
+        for v in $RESTORE_SHAPERS_SUPPORTED_FW ; do
+          if echo "$fw" | grep -qF "$v" ; then
+            verified="1"
+            break
+          fi
+        done
+        if [ -z "$verified" ]; then
+          error_msg "Restore Input Shapers is not verified for this firmware yet!"
+          echo -e " ${cyan}Detected firmware: ${white}${fw:-unknown}${white}"
+          echo -e " ${cyan}Verified firmware: ${white}${RESTORE_SHAPERS_SUPPORTED_FW}${white}"
+          echo -e " ${cyan}Please report your version so it can be vetted and added:${white}"
+          echo -e " ${cyan}https://github.com/C0DEbrained/Creality-Helper-Script-2025/issues${white}"
+          return
+        fi
         # 1. Restore the full shaper model set.
         # Creality's compiled shaper_defs.pyc trims INPUT_SHAPERS down to 'ei', so
         # SHAPER_CALIBRATE only ever fits ei. Dropping the stock shaper_defs.py beside it
