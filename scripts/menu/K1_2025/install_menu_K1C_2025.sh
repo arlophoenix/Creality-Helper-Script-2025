@@ -21,6 +21,7 @@ function install_menu_ui_k1_2025() {
   menu_option ' 7' 'Install' 'USB Camera Support'
   menu_option ' 8' 'Install' 'Built-in Camera Fix'
   menu_option ' 9' 'Install' 'Camera Settings Control'
+  menu_option '10' 'Install' 'Moonraker Timelapse'
 #  hr
 #  subtitle '•IMPROVEMENTS:'
 #  disabled_menu_option ' 6' 'Install' 'Klipper Adaptive Meshing & Purging'
@@ -142,6 +143,16 @@ function install_menu_k1_2025() {
           error_msg "Klipper Gcode Shell Command is needed, please install it first!"
         else
           run "install_camera_settings_control" "install_menu_ui_k1_2025"
+        fi;;
+      10)
+        if [ -f "$TIMELAPSE_FILE" ]; then
+          error_msg "Moonraker Timelapse is already installed!"
+        elif [ ! -f "$ENTWARE_FILE" ]; then
+          error_msg "Entware is needed, please install it first!"
+        elif [ ! -d "$MOONRAKER_FOLDER" ] || [ ! -d "$NGINX_FOLDER" ]; then
+          error_msg "Moonraker and Nginx are needed, please install them first!"
+        else
+          run "install_moonraker_timelapse" "install_menu_ui_k1_2025"
         fi;;
 #      7)
 #        disabled_feature;;
