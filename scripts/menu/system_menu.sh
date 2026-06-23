@@ -2,12 +2,21 @@
 
 set -e
 
+# K1_2025 firmware dropped system_version.json and keeps the build string in
+# /etc/version instead, so branch on $model like the rest of the script.
+# NOTE: restore_input_shapers.sh gates on the K1_2025 branch returning the raw
+# /etc/version contents (it substring-matches the firmware build). Keep that
+# branch verbatim - don't reformat or strip it without updating the gate.
 function check_fw_version() {
-  file="/usr/data/creality/userdata/config/system_version.json"
-  if [ -e "$file" ]; then
-    cat "$file" | jq -r '.sys_version'
+  if [ "$model" = "K1_2025" ]; then
+    cat /etc/version 2>/dev/null || echo -e "N/A"
   else
-    echo -e "N/A"
+    file="/usr/data/creality/userdata/config/system_version.json"
+    if [ -e "$file" ]; then
+      cat "$file" | jq -r '.sys_version'
+    else
+      echo -e "N/A"
+    fi
   fi
 }
 

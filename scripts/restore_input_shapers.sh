@@ -5,8 +5,9 @@ set -e
 # Firmware builds whose stock Klipper this restore is verified against. A future
 # Creality firmware could ship a different shaper_defs (or react differently to the
 # change), so klippy is only modified on known-good versions, matched as a substring
-# of /etc/version. Space-separated; extend as builds are confirmed. Anyone on an
-# unlisted build is asked to report it first rather than have klippy touched blindly.
+# of the reported firmware (check_fw_version, which returns /etc/version on the
+# K1_2025). Space-separated; extend as builds are confirmed. Anyone on an unlisted
+# build is asked to report it first rather than have klippy touched blindly.
 RESTORE_SHAPERS_SUPPORTED_FW="V1.0.0.22.20250711S"
 
 function restore_input_shapers_message(){
@@ -31,7 +32,7 @@ function install_restore_input_shapers(){
       Y|y)
         echo -e "${white}"
         # Bail out on unverified firmware before touching klippy (see note at top).
-        fw="$(cat /etc/version 2>/dev/null)"
+        fw="$(check_fw_version)"
         verified=""
         for v in $RESTORE_SHAPERS_SUPPORTED_FW ; do
           if echo "$fw" | grep -qF "$v" ; then
