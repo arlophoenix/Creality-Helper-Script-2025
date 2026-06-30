@@ -113,6 +113,10 @@ function set_paths() {
   # Improved Shapers Calibrations #
   IMP_SHAPERS_FOLDER="${HS_CONFIG_FOLDER}/improved-shapers"
   IMP_SHAPERS_URL="${HS_FILES}/improved-shapers"
+
+  # Restore Input Shapers (K1C 2025) #
+  RESTORE_SHAPERS_URL="${HS_FILES}/restore-input-shapers/shaper_defs.py"
+  SHAPER_DEFS_FILE="${KLIPPER_EXTRAS_FOLDER}/shaper_defs.py"
   
   # Useful Macros #
   USEFUL_MACROS_FILE="${HS_CONFIG_FOLDER}/useful-macros.cfg"

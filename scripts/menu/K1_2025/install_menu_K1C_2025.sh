@@ -22,6 +22,9 @@ function install_menu_ui_k1_2025() {
   menu_option ' 8' 'Install' 'Built-in Camera Fix'
   menu_option ' 9' 'Install' 'Camera Settings Control'
   menu_option '10' 'Install' 'Moonraker Timelapse'
+  hr
+  subtitle '•IMPROVEMENTS:'
+  menu_option '11' 'Install' 'Restore Input Shapers'
 #  hr
 #  subtitle '•IMPROVEMENTS:'
 #  disabled_menu_option ' 6' 'Install' 'Klipper Adaptive Meshing & Purging'
@@ -153,6 +156,12 @@ function install_menu_k1_2025() {
           error_msg "Moonraker and Nginx are needed, please install them first!"
         else
           run "install_moonraker_timelapse" "install_menu_ui_k1_2025"
+        fi;;
+      11)
+        if [ -f "$SHAPER_DEFS_FILE" ]; then
+          error_msg "Restore Input Shapers is already installed!"
+        else
+          run "install_restore_input_shapers" "install_menu_ui_k1_2025"
         fi;;
 #      7)
 #        disabled_feature;;

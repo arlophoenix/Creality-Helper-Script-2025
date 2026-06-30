@@ -2,12 +2,21 @@
 
 set -e
 
+# K1_2025 firmware dropped system_version.json and keeps the build string in
+# /etc/version instead, so branch on $model like the rest of the script.
+# NOTE: restore_input_shapers.sh gates on the K1_2025 branch returning the raw
+# /etc/version contents (it substring-matches the firmware build). Keep that
+# branch verbatim - don't reformat or strip it without updating the gate.
 function check_fw_version() {
-  file="/usr/data/creality/userdata/config/system_version.json"
-  if [ -e "$file" ]; then
-    cat "$file" | jq -r '.sys_version'
+  if [ "$model" = "K1_2025" ]; then
+    cat /etc/version 2>/dev/null || echo -e "N/A"
   else
-    echo -e "N/A"
+    file="/usr/data/creality/userdata/config/system_version.json"
+    if [ -e "$file" ]; then
+      cat "$file" | jq -r '.sys_version'
+    else
+      echo -e "N/A"
+    fi
   fi
 }
 
@@ -55,8 +64,16 @@ function system_menu_ui() {
   uptime=`cat /proc/uptime | cut -f1 -d.`
   formatted_uptime=$(format_uptime $uptime)
   load=`awk -v cpus=2 '{printf "%.2f%% (1 min) | %.2f%% (5 min) | %.2f%% (15 min)\n", $1*100/cpus, $2*100/cpus, $3*100/cpus}' /proc/loadavg`
-  device_sn=$(cat /usr/data/creality/userdata/config/system_config.json | grep -o '"device_sn":"[^"]*' | awk -F '"' '{print $4}')
-  mac_address=$(cat /usr/data/creality/userdata/config/system_config.json | grep -o '"device_mac":"[^"]*' | awk -F '"' '{print $4}' | sed 's/../&:/g; s/:$//')
+  if [ "$model" = "K1_2025" ]; then
+    # 2025 firmware dropped system_config.json (same as system_version.json); SN/MAC
+    # come from get_sn_mac.sh, the helper detect_model already uses.
+    device_sn=$(get_sn_mac.sh sn 2>/dev/null)
+    mac_address=$(get_sn_mac.sh mac 2>/dev/null | sed 's/../&:/g; s/:$//')
+  else
+    sysconf="/usr/data/creality/userdata/config/system_config.json"
+    device_sn=$(grep -o '"device_sn":"[^"]*' "$sysconf" 2>/dev/null | awk -F '"' '{print $4}')
+    mac_address=$(grep -o '"device_mac":"[^"]*' "$sysconf" 2>/dev/null | awk -F '"' '{print $4}' | sed 's/../&:/g; s/:$//')
+  fi
   top_line
   title '[ SYSTEM MENU ]' "${yellow}"
   inner_line
